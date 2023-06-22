@@ -35,48 +35,59 @@ class Dofus_item_Scrapping:
 
             # Item stats
             item_stats = []
-            item_stats_container = soup.find(class_='ak-container ak-content-list ak-displaymode-col')
-            div_elements = item_stats_container.find_all(class_='ak-list-element')
+            try:
+                item_stats_container = soup.find(class_='ak-container ak-content-list ak-displaymode-col')
+                div_elements = item_stats_container.find_all(class_='ak-list-element')
 
-            for element in div_elements:
-                if element:
-                    stat = element.find(class_='ak-title').text.strip()
-                    stat = stat.replace('\n', '')
-                    item_stats.append(stat)
-                else:
-                    print('no stat available')
-            
+                for element in div_elements:
+                    if element:
+                        stat = element.find(class_='ak-title').text.strip()
+                        stat = stat.replace('\n', '')
+                        item_stats.append(stat)
+                    else:
+                        print('no stat available')
+            except AttributeError:
+                item_stats.append('No stat available')
+
             # Item recipe ingredients
             item_recipe = {}
             item_recipe['recipe'] = []
-            item_recipe_container = soup.find(class_='ak-container ak-content-list ak-displaymode-image-col')
-            row_containers = item_recipe_container.find(class_='row ak-container')
+            try: 
+                item_recipe_container = soup.find(class_='ak-container ak-content-list ak-displaymode-image-col')
+                row_containers = item_recipe_container.find(class_='row ak-container')
 
-            for row_container in row_containers:
-                list_elements = row_container.findAll(class_='ak-list-element')
+                for row_container in row_containers:
+                    list_elements = row_container.findAll(class_='ak-list-element')
+                    
+                    for list_element in list_elements:
+                        try:
+                            data = {
+                                'name': '',
+                                'quantity': '',
+                                'image': ''
+                            }
+
+                            # Recipe ingredient name
+                            data['name'] = list_element.find('div', class_='ak-content').find('span', class_='ak-linker').text.strip().replace('\n', '')
+
+                            # Recipe ingredient quantity
+                            data['quantity'] = list_element.find(class_='ak-front').text.strip().replace('\n', '')
+                            
+                            # Recipe ingredient image
+                            data['image'] = list_element.find(class_='ak-linker').find('img')['src']
+
+                            # Append the data to the item_recipe dictionary
+                            item_recipe['recipe'].append(data)
+                        except AttributeError:
+                            continue
+            except AttributeError:
+                print('No recipe available')
+                item_recipe['recipe'] = 'No recipe available'
+            except TypeError:
+                print('No recipe available')
+                item_recipe['recipe'] = 'No recipe available'
+
                 
-                for list_element in list_elements:
-                    try:
-                        data = {
-                            'name': '',
-                            'quantity': '',
-                            'image': ''
-                        }
-
-                        # Recipe ingredient name
-                        data['name'] = list_element.find('div', class_='ak-content').find('span', class_='ak-linker').text.strip().replace('\n', '')
-
-                        # Recipe ingredient quantity
-                        data['quantity'] = list_element.find(class_='ak-front').text.strip().replace('\n', '')
-                        
-                        # Recipe ingredient image
-                        data['image'] = list_element.find(class_='ak-linker').find('img')['src']
-
-                        # Append the data to the item_recipe dictionary
-                        item_recipe['recipe'].append(data)
-                    except AttributeError:
-                        continue
-
             item = {
                 'id': item_id,
                 'name': item_name,
@@ -87,7 +98,6 @@ class Dofus_item_Scrapping:
                 'stats': item_stats,
                 'recipe': item_recipe['recipe']
             }
-
             self.Data_to_CSV_file(item)
 
         else:
