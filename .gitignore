@@ -1,0 +1,7 @@
+scrap_dofus_app/classes/__pycache__
+my_env
+items.json
+.pytest_cache
+dofus_web_app/flaskr/__pycache__
+
+

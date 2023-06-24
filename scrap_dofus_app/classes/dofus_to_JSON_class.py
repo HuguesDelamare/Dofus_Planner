@@ -24,9 +24,28 @@ class DofusItemScrapping:
         scrapping_data(): This is the third method.
     """
 
-    def __init__(self, page=1):
-        self.page = page
-        self.scrapping_data()
+    def __init__(self):
+        self.page = 1
+        self.continue_scrapping()
+
+    def continue_scrapping(self):
+        """
+        This is the first method of DofusItemScrapping.
+
+        Returns:
+            str: A string representing the result of the method.
+        """
+        # Check if the JSON file is empty, if not get the last page scrapped
+        if os.path.isfile("items.json"):
+            with open("items.json", "r", encoding='utf-8') as file:
+                data = json.load(file)
+            if data:
+                self.page = int(len(data)+1)
+                print(self.page)
+                self.scrapping_data()
+            else:
+                self.scrapping_data()
+                pass
 
     def get_data_from_url(self, url):
         """
