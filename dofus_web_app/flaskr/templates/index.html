@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Crafting workbench{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Searchbar for item -->
+      
+    <form action="{}" method="GET">
+        <input type="text" name="query" placeholder="Search...">
+        <button type="submit">Search</button>
+    </form>
+
+    <form action="/insert-data" method="POST">
+      <button type="submit">Insert Json data</button>
+    </form>
+    
+    
+    <!-- If item found create inputs with name and price base on the item recipe -->
+
+    <!-- Showing the prices x1 & x10 and if good or not to craft it -->
+
+    <!-- Button to reset/empty the inputs -->
+    
+{% endblock %}

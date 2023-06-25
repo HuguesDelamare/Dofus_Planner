@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS post;
+
 
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7,11 +7,28 @@ CREATE TABLE user (
     password TEXT NOT NULL
 );
 
-CREATE TABLE post(
+CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    author_id INTEGER NOT NULL,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    title TEXT NOT NULL,
-    body TEXT NOT NULL,
-    FOREIGN KEY (author_id) REFERENCES user (id)
-)
+    id_dofus INTEGER,
+    name TEXT,
+    image TEXT,
+    type TEXT,
+    level TEXT,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS item_stats (
+    id INTEGER PRIMARY KEY,
+    item_id INTEGER,
+    stat TEXT,
+    FOREIGN KEY (item_id) REFERENCES items (id)
+);
+
+CREATE TABLE IF NOT EXISTS item_ingredients (
+    id INTEGER PRIMARY KEY ,
+    item_id INTEGER,
+    name TEXT,
+    quantity TEXT,
+    image TEXT,
+    FOREIGN KEY (item_id) REFERENCES items (id)
+);
