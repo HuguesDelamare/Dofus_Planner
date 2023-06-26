@@ -9,7 +9,7 @@ CREATE TABLE user (
 
 CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_dofus INTEGER,
+    id_dofus TEXT,
     name TEXT,
     image TEXT,
     type TEXT,
