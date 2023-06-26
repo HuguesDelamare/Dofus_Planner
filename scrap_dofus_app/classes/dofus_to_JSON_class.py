@@ -35,17 +35,19 @@ class DofusItemScrapping:
         Returns:
             str: A string representing the result of the method.
         """
+        # Check if the JSON file exists
+        if not os.path.isfile("items.json"):
+            # Create an empty JSON file
+            with open("items.json", "w", encoding='utf-8') as file:
+                json.dump({}, file)
+
         # Check if the JSON file is empty, if not get the last page scrapped
-        if os.path.isfile("items.json"):
-            with open("items.json", "r", encoding='utf-8') as file:
-                data = json.load(file)
-            if data:
-                self.page = int(len(data)+1)
-                print(self.page)
-                self.scrapping_data()
-            else:
-                self.scrapping_data()
-                pass
+        with open("items.json", "r", encoding='utf-8') as file:
+            data = json.load(file)
+        if data:
+            self.page = int(len(data) + 1)
+            print(self.page)
+        self.scrapping_data()
 
     def get_data_from_url(self, url):
         """
@@ -165,20 +167,15 @@ class DofusItemScrapping:
             str: A string representing the result of the method.
         """
 
-        # Create JSON file if not exist
-        if not os.path.isfile("items.json"):
-            with open("items.json", "w", encoding='utf-8') as file:
-                json.dump({}, file)
-
         # Open JSON file
         with open("items.json", "r", encoding='utf-8') as file:
             data = json.load(file)
 
         # Add data to JSON file
         if page_nb in data:
-            data[page_nb].append(item)
+            data[page_nb].extend(item)
         else:
-            data[page_nb] = [item]
+            data[page_nb] = item
 
         # Save data to JSON file
         with open("items.json", "w", encoding='utf-8') as file:
