@@ -1,9 +1,9 @@
 import os
 from flask import Flask
-from flask import render_template
 from . import auth
 from . import data_management
 from . import db
+from . import views
 
 
 def create_app(test_config=None):
@@ -32,11 +32,7 @@ def create_app(test_config=None):
         db.init_db()
 
         app.register_blueprint(auth.bp)
-        app.register_blueprint(data_management.bp) 
-
-        # A simple page that says hello
-        @app.route('/')
-        def index():
-            return render_template('index.html')
+        app.register_blueprint(data_management.bp)
+        app.register_blueprint(views.bp)
 
         return app

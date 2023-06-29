@@ -4,6 +4,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from dofus_web_app.flaskr.db import get_db
+from dofus_web_app.flaskr.views import bp as views_bp
 
 # Create a Blueprint named 'auth' in the __name__ package
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -64,7 +65,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('index'))
+            return redirect(url_for('views.home'))
         flash(error)
     return render_template('auth/login.html')
 
@@ -88,7 +89,7 @@ def load_logged_in_user():
 def logout():
     # Remove the user id from the session
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('views.home'))
 
 
 # Create a decorator to check if a user is logged in
