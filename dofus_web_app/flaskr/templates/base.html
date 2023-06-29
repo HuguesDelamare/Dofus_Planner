@@ -6,6 +6,7 @@
     <!-- CSS and other meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:Style1,Style2,...&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
 
@@ -13,9 +14,14 @@
     <!-- Header content of the page  -->
     <header>
       <nav>
-        <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Crafting</a></li>
+        <ul class="left">
+            <li><a href="{{url_for('views.home')}}">Home</a></li>
+            {% if g.user %}
+            <li><a href="{{url_for('views.workbench')}}">My workbench</a></li>
+            <li><a href="{{url_for('views.craft')}}">Crafting</a></li>
+            {% endif %}
+        </ul>
+        <ul class="right">
           {% if g.user %}
             <li><span>{{ g.user['username'] }}</span>
             <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
