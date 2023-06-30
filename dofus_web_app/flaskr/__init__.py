@@ -1,14 +1,13 @@
 import os
 from flask import Flask
 from . import auth
-from . import data_management
 from . import db
 from . import views
 
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True) 
+    app = Flask(__name__, instance_relative_config=True)
     # Set the path to the instance folder within the dofus_web_app folder
     instance_path = os.path.join(app.root_path, 'instance')
 
@@ -32,7 +31,6 @@ def create_app(test_config=None):
         db.init_db()
 
         app.register_blueprint(auth.bp)
-        app.register_blueprint(data_management.bp)
         app.register_blueprint(views.bp)
 
         return app
