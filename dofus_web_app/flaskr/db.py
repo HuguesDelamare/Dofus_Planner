@@ -26,3 +26,28 @@ def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+
+
+# Function to fetch search suggestions from the database
+def get_suggestions(query):
+    db = get_db()
+    # SQL query to fetch suggestions based on the user's query
+    cursor = db.execute("SELECT item_name FROM items WHERE LOWER(item_name) LIKE ? LIMIT 10", ('%' + query + '%',))
+    # Extract the item names from the query result
+    suggestions = [row['item_name'] for row in cursor.fetchall()]
+    return suggestions
+
+
+def perform_search(query):
+    db = get_db()
+    # Perform a database query to fetch the search results based on the query
+    cursor = db.execute("SELECT * FROM items WHERE item_name = ?", (query,))
+    results = [dict(row) for row in cursor.fetchall()]
+    return results
+
+
+def get_recipe_by_id(item_id):
+    db = get_db()
+    cursor = db.execute("SELECT * FROM item_ingredients WHERE item_id = ?", (item_id,))
+    results = [dict(row) for row in cursor.fetchall()]
+    return results
