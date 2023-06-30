@@ -1,7 +1,118 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Home{% endblock %}</h1>
+  <h1>{% block title %}Crafting{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+
+<form action="{{ url_for('views.craft') }}" method="GET">
+  <input type="text" name="query" id="search-input" placeholder="Search for items" autocomplete="off">
+  <div id="suggestions"></div>
+</form>
+
+<form action="/insert-data" method="POST">
+  <button type="submit">Insert Json data</button>
+</form>
+
+<div>
+  <table width="70%">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Nom de la ressource</td>
+        <td>3</td>
+        <td><input type="text" name="item2" value="item2"></td>
+        <td>120000</td>
+      </tr>
+    </tbody>
+  </table>
+  
+</div>
+
+<ul id="search-results-list"></ul>
+
+
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const searchInput = document.getElementById('search-input');
+    const suggestionsContainer = document.getElementById('suggestions');
+    const searchResultsList = document.getElementById('search-results-list');
+    const tableBody = document.querySelector('tbody');
+
+    searchInput.addEventListener('input', function() {
+      const query = searchInput.value;
+
+      if (query.length > 0) {
+        // Make an AJAX request to the server to fetch suggestions
+        fetch(`/suggest?query=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            console.log('Suggestions:', data); // Log the suggestions data
+            // Update the suggestions in the DOM
+            suggestionsContainer.innerHTML = '';
+            for (const suggestion of data.suggestions) {
+              const suggestionElement = document.createElement('div');
+              suggestionElement.textContent = suggestion;
+              suggestionElement.addEventListener('click', function() {
+                // Make an AJAX request to fetch the whole item from the database
+                fetch(`/search?name=${encodeURIComponent(suggestion)}`)
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log('Search Results:', data); // Log the search results data
+                    // Clear the previous search results
+                    searchResultsList.innerHTML = '';
+                    tableBody.innerHTML = '';
+
+                    for (const item of data) {
+                      const listItem = document.createElement('li');
+                      listItem.textContent = `Item Name: ${item.item_name}`;
+                      if (item.item_recipe) {
+                        // Assuming `item` is the object containing the `item_recipe` array
+                        for (const recipe of item.item_recipe) {
+                          const tableRow = document.createElement('tr');
+
+                          // Create and append <td> elements for each recipe attribute
+                          const recipeNameCell = document.createElement('td');
+                          recipeNameCell.textContent = recipe.ingredients_name;
+                          tableRow.appendChild(recipeNameCell);
+
+                          const recipeQuantityCell = document.createElement('td');
+                          recipeQuantityCell.textContent = recipe.ingredients_quantity;
+                          tableRow.appendChild(recipeQuantityCell);
+
+                          // Append the row to the table body
+                          
+                          tableBody.appendChild(tableRow);
+                        }
+                      }
+                      searchResultsList.appendChild(listItem);
+                    }
+                  })
+                  .catch(error => {
+                    console.log('Error:', error);
+                  });
+              });
+              suggestionsContainer.appendChild(suggestionElement);
+            }
+          })
+          .catch(error => {
+            console.log('Error:', error);
+          });
+      } else {
+        // Clear the suggestions and search results if the input is empty
+        suggestionsContainer.innerHTML = '';
+        searchResultsList.innerHTML = '';
+      }
+    });
+  </script>
+{% endblock %}
