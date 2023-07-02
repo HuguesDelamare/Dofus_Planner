@@ -1,44 +1,62 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Crafting{% endblock %}</h1>
+  <h1>{% block title %}Search an item to craft{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
 
-<form action="{{ url_for('views.craft') }}" method="GET">
-  <input type="text" name="query" id="search-input" placeholder="Search for items" autocomplete="off">
-  <div id="suggestions"></div>
-</form>
-
-<form action="/insert-data" method="POST">
-  <button type="submit">Insert Json data</button>
-</form>
-
-<div>
-  <table width="70%">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Nom de la ressource</td>
-        <td>3</td>
-        <td><input type="text" name="item2" value="item2"></td>
-        <td>120000</td>
-      </tr>
-    </tbody>
-  </table>
-  
+<div class="container">
+  <div id="search-container">
+    <form action="{{ url_for('views.craft') }}" method="GET">
+      <input type="text" name="query" id="search-input" placeholder="Type the name of the item you want to search..." autocomplete="off">
+      <div id="suggestions"></div>
+    </form>
+  </div>
+  <div id="crafting container">
+    <div id="top-container">
+      <h1 id="crafted-item-title"></h1>
+      <div id="infos-prices">
+        <div>
+          <label for="">AH Item price /u</label>
+          <input type="text" id="" />        
+        </div>
+      
+        <div>
+          <label for="">Profit with taxes</label>
+          <input type="text" id="" />        
+        </div>
+      </div>
+      <div id="buttons-wrapper">
+        <button type="submit">Update</button>
+        <form action="/insert-data" method="POST">
+          <button type="submit">Insert Json data</button>
+        </form>
+      </div>
+    </div>
+    
+    <div id="crafting-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Total</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
 </div>
-
-<ul id="search-results-list"></ul>
-
 
 {% endblock %}
 
@@ -46,8 +64,8 @@
   <script>
     const searchInput = document.getElementById('search-input');
     const suggestionsContainer = document.getElementById('suggestions');
-    const searchResultsList = document.getElementById('search-results-list');
     const tableBody = document.querySelector('tbody');
+    const titleCraftItem = document.getElementById('crafted-item-title');
 
     searchInput.addEventListener('input', function() {
       const query = searchInput.value;
@@ -70,17 +88,14 @@
                   .then(data => {
                     console.log('Search Results:', data); // Log the search results data
                     // Clear the previous search results
-                    searchResultsList.innerHTML = '';
                     tableBody.innerHTML = '';
+                    titleCraftItem.innerHTML = '';
 
                     for (const item of data) {
-                      const listItem = document.createElement('li');
-                      listItem.textContent = `Item Name: ${item.item_name}`;
                       if (item.item_recipe) {
                         // Assuming `item` is the object containing the `item_recipe` array
                         for (const recipe of item.item_recipe) {
                           const tableRow = document.createElement('tr');
-
                           // Create and append <td> elements for each recipe attribute
                           const recipeNameCell = document.createElement('td');
                           recipeNameCell.textContent = recipe.ingredients_name;
@@ -90,13 +105,25 @@
                           recipeQuantityCell.textContent = recipe.ingredients_quantity;
                           tableRow.appendChild(recipeQuantityCell);
 
+                          const inputPriceCell = document.createElement('td')
+                          const inputPrice = document.createElement("input");
+                          inputPrice.setAttribute("type", "text");
+                          inputPriceCell.appendChild(inputPrice)
+                          tableRow.append(inputPriceCell)
+
+                          const inputTotalCell = document.createElement('td')
+                          const inputTotal = document.createElement("input");
+                          inputTotal.setAttribute("type", "text");
+                          inputTotalCell.appendChild(inputTotal)
+                          tableRow.append(inputTotalCell)
+
                           // Append the row to the table body
-                          
                           tableBody.appendChild(tableRow);
                         }
                       }
-                      searchResultsList.appendChild(listItem);
+                      titleCraftItem.innerHTML = item.item_name
                     }
+                    
                   })
                   .catch(error => {
                     console.log('Error:', error);
@@ -111,7 +138,6 @@
       } else {
         // Clear the suggestions and search results if the input is empty
         suggestionsContainer.innerHTML = '';
-        searchResultsList.innerHTML = '';
       }
     });
   </script>

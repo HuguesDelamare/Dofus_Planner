@@ -62,7 +62,7 @@ class DofusItemScrapping:
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, "html.parser")
             # Item id
-            item_id = "".join(re.findall(r"\d", url))
+            item_id = int("".join(re.findall(r"\d", url)))
             # Item name
             item_name = (
                 soup.find(class_="ak-title-container ak-backlink")
@@ -81,11 +81,11 @@ class DofusItemScrapping:
             item_level = soup.find(
                 class_="ak-encyclo-detail-level col-xs-6 text-right"
             ).text.replace("\n", "")
+            item_level = int(re.findall(r'\d+', item_level)[0])
             # Item description
             item_description = soup.findAll(class_="ak-panel-content")[1].text.replace(
                 "\n", ""
             )
-
             # Item stats
             item_stats = []
             try:
@@ -121,14 +121,16 @@ class DofusItemScrapping:
                             data["name"] = (
                                 list_element.find("div", class_="ak-content")
                                 .find("span", class_="ak-linker")
-                                .text.strip()
+                                .text
+                                .strip()
                                 .replace("\n", "")
                             )
                             # Recipe ingredient quantity
-                            data["quantity"] = (
+                            data["quantity"] = int(
                                 list_element.find(class_="ak-front")
-                                .text.strip()
-                                .replace("\n", "")
+                                .text
+                                .replace("x", "")
+                                .strip()
                             )
                             # Recipe ingredient image
                             data["image"] = list_element.find(class_="ak-linker").find(
