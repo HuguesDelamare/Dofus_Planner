@@ -13,25 +13,24 @@
       <div id="suggestions"></div>
     </form>
   </div>
-  <div id="crafting container">
+  <div id="crafting-container">
     <div id="top-container">
       <h1 id="crafted-item-title"></h1>
       <div id="infos-prices">
-        <div>
-          <label for="">AH Item price /u</label>
-          <input type="text" id="" />        
-        </div>
-      
-        <div>
-          <label for="">Profit with taxes</label>
-          <input type="text" id="" />        
-        </div>
+        <label for="item-price-input">Item price : </label>
+        <input type="text" id="item-price-input" />
+      </div>
+      <div id="final-values-input">
+        <label for="item-price-input">Total cost :</label>
+        <input type="text" id="total-cost" value="" readonly>
+
+        <label for="item-price-input" id="label-profit">Profit :</label>
+        <input type="text" id="profit" value="" readonly>
       </div>
       <div id="buttons-wrapper">
-        <button type="submit">Update</button>
-        <form action="/insert-data" method="POST">
-          <button type="submit">Insert Json data</button>
-        </form>
+        <button id="add-button" class="styled-button" type="button">+</button>
+        <button id="update-button" class="styled-button" type="button">Update</button>
+        <button id="insert-data-button" class="styled-button" type="button">Insert Json data</button>
       </div>
     </div>
     
@@ -46,13 +45,12 @@
           </tr>
         </thead>
         <tbody>
+          <td></td>
+          <td></td>
+          <td><input type="number" pattern="\d*"></td>
+          <td></td>
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">Total</td>
-            <td></td>
-          </tr>
-        </tfoot>
+        <tfoot></tfoot>
       </table>
     </div>
   </div>
@@ -61,84 +59,5 @@
 {% endblock %}
 
 {% block scripts %}
-  <script>
-    const searchInput = document.getElementById('search-input');
-    const suggestionsContainer = document.getElementById('suggestions');
-    const tableBody = document.querySelector('tbody');
-    const titleCraftItem = document.getElementById('crafted-item-title');
-
-    searchInput.addEventListener('input', function() {
-      const query = searchInput.value;
-
-      if (query.length > 0) {
-        // Make an AJAX request to the server to fetch suggestions
-        fetch(`/suggest?query=${encodeURIComponent(query)}`)
-          .then(response => response.json())
-          .then(data => {
-            console.log('Suggestions:', data); // Log the suggestions data
-            // Update the suggestions in the DOM
-            suggestionsContainer.innerHTML = '';
-            for (const suggestion of data.suggestions) {
-              const suggestionElement = document.createElement('div');
-              suggestionElement.textContent = suggestion;
-              suggestionElement.addEventListener('click', function() {
-                // Make an AJAX request to fetch the whole item from the database
-                fetch(`/search?name=${encodeURIComponent(suggestion)}`)
-                  .then(response => response.json())
-                  .then(data => {
-                    console.log('Search Results:', data); // Log the search results data
-                    // Clear the previous search results
-                    tableBody.innerHTML = '';
-                    titleCraftItem.innerHTML = '';
-
-                    for (const item of data) {
-                      if (item.item_recipe) {
-                        // Assuming `item` is the object containing the `item_recipe` array
-                        for (const recipe of item.item_recipe) {
-                          const tableRow = document.createElement('tr');
-                          // Create and append <td> elements for each recipe attribute
-                          const recipeNameCell = document.createElement('td');
-                          recipeNameCell.textContent = recipe.ingredients_name;
-                          tableRow.appendChild(recipeNameCell);
-
-                          const recipeQuantityCell = document.createElement('td');
-                          recipeQuantityCell.textContent = recipe.ingredients_quantity;
-                          tableRow.appendChild(recipeQuantityCell);
-
-                          const inputPriceCell = document.createElement('td')
-                          const inputPrice = document.createElement("input");
-                          inputPrice.setAttribute("type", "text");
-                          inputPriceCell.appendChild(inputPrice)
-                          tableRow.append(inputPriceCell)
-
-                          const inputTotalCell = document.createElement('td')
-                          const inputTotal = document.createElement("input");
-                          inputTotal.setAttribute("type", "text");
-                          inputTotalCell.appendChild(inputTotal)
-                          tableRow.append(inputTotalCell)
-
-                          // Append the row to the table body
-                          tableBody.appendChild(tableRow);
-                        }
-                      }
-                      titleCraftItem.innerHTML = item.item_name
-                    }
-                    
-                  })
-                  .catch(error => {
-                    console.log('Error:', error);
-                  });
-              });
-              suggestionsContainer.appendChild(suggestionElement);
-            }
-          })
-          .catch(error => {
-            console.log('Error:', error);
-          });
-      } else {
-        // Clear the suggestions and search results if the input is empty
-        suggestionsContainer.innerHTML = '';
-      }
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/pages/craft_page.js') }}"></script>
 {% endblock %}
