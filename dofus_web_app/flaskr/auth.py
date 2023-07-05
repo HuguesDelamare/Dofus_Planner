@@ -1,10 +1,9 @@
-import functools
+from functools import wraps
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from dofus_web_app.flaskr.db import get_db
-from dofus_web_app.flaskr.views import bp as views_bp
 
 # Create a Blueprint named 'auth' in the __name__ package
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -94,7 +93,7 @@ def logout():
 
 # Create a decorator to check if a user is logged in
 def login_required(view):
-    @functools.wraps(view)
+    @wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))

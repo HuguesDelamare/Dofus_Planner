@@ -1,7 +1,10 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from dofus_web_app.flaskr.db import get_db, get_suggestions, perform_search, get_recipe_by_id
+from .auth import login_required
 import os
 import json
+
+
 bp = Blueprint('views', __name__)
 
 
@@ -11,6 +14,7 @@ def home():
 
 
 @bp.route('/craft', methods=['GET', 'POST'])
+@login_required
 def craft():
     query = request.args.get('query', '')
     if query:
