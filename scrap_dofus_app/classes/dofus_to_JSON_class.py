@@ -2,6 +2,7 @@
 Module-level docstring briefly describing the purpose of the module.
 """
 
+import base64
 import time
 import re
 import json
@@ -71,6 +72,20 @@ class DofusItemScrapping:
             )
             # Item image
             item_image = soup.find(class_="ak-encyclo-detail-illu").find("img")["src"]
+            # Fetch the item image data
+            image_response = requests.get(item_image)
+            if image_response.status_code == 200:
+                # Encode the image data to Base64
+                item_image_data = base64.b64encode(image_response.content).decode('utf-8')
+            else:
+                print(f"Failed to retrieve item image. Status code: {image_response.status_code}")
+                item_image_data = None
+            # Item type
+            item_type = (
+                soup.find(class_="ak-encyclo-detail-type col-xs-6")
+                .find("span")
+                .text.replace("\n", "")
+            )
             # Item type
             item_type = (
                 soup.find(class_="ak-encyclo-detail-type col-xs-6")
@@ -133,9 +148,16 @@ class DofusItemScrapping:
                                 .strip()
                             )
                             # Recipe ingredient image
-                            data["image"] = list_element.find(class_="ak-linker").find(
-                                "img"
-                            )["src"]
+                            # Recipe ingredient image
+                            data["image"] = list_element.find(class_="ak-linker").find("img")["src"]
+                            # Fetch the image data from the URL
+                            response = requests.get(data["image"])
+                            if response.status_code == 200:
+                                # Encode the image data as Base64 and store it in the JSON
+                                data["image"] = base64.b64encode(response.content).decode("utf-8")
+                            else:
+                                # If fetching the image fails, set it to an empty string or handle the error as desired
+                                data["image"] = ""
                             # Append the data to the item_recipe dictionary
                             item_recipe["recipe"].append(data)
                         except AttributeError:
@@ -149,7 +171,7 @@ class DofusItemScrapping:
             item = {
                 "id": item_id,
                 "name": item_name,
-                "image": item_image,
+                "image": item_image_data,
                 "type": item_type,
                 "level": item_level,
                 "description": item_description,
