@@ -6,7 +6,6 @@ from dofus_web_app.flaskr import create_app
 
 
 def main():
-    # DofusItemScrapping()
     create_app().run(debug=True)
 
 
