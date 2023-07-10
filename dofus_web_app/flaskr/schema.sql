@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     item_id_dofus INT,
     item_name TEXT,
-    item_image TEXT,
+    item_image BLOB,
     item_type TEXT,
     item_level INT,
     item_description TEXT,
