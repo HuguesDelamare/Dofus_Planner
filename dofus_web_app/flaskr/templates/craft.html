@@ -8,7 +8,7 @@
 
 <div class="container">
   <div id="search-container">
-    <form action="{{ url_for('views.craft') }}" method="GET">
+    <form action="{{ url_for('views.search') }}" method="GET">
       <input type="text" name="query" id="search-input" placeholder="Type the name of the item you want to search..." autocomplete="off">
       <div id="suggestions"></div>
     </form>
@@ -38,6 +38,7 @@
       <table>
         <thead>
           <tr>
+            <th>Image</th>
             <th>Name</th>
             <th>Quantity</th>
             <th>Price</th>
@@ -45,10 +46,13 @@
           </tr>
         </thead>
         <tbody>
-          <td></td>
-          <td></td>
-          <td><input type="number" pattern="\d*"></td>
-          <td></td>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" pattern="\d*"></td>
+            <td></td>            
+          </tr>
         </tbody>
         <tfoot></tfoot>
       </table>

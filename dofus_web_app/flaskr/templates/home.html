@@ -4,4 +4,53 @@
   <h1>{% block title %}Home{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div>
+    <h1>Home</h1>
+    <p class="lead">Welcome to the Dofus Web App!</p>
+    <p class="lead">This is a web app that allows you to find people to help you during your adventure !</p>
+    <p class="lead">You can also use the crafting tool to help you with your crafts !</p>
+    <p class="lead"></p>
+  </div>
+  <div class="homepage-container">
+    <div class="row">
+      <a class="card" href="{{ url_for('views.search') }}">
+        <h2>Job Packages</h2>
+        <img src="{{ url_for('static', filename='images/420188.jpg') }}" alt="Job Packages">
+      </a>
+  
+      <a class="card" href="{{ url_for('views.search') }}">
+        <h2>Breeding Packages</h2>
+        <img src="{{ url_for('static', filename='images/418991.jpg') }}" alt="Breeding Packages">
+      </a>
+  
+      <a class="card" href="{{ url_for('views.search') }}">
+        <h2>Powerleveling</h2>
+        <img src="{{ url_for('static', filename='images/418994.jpg') }}" alt="Powerleveling">
+      </a>
+    </div>
+  
+    <div class="row">
+      <a class="card" href="{{ url_for('views.search') }}">
+        <h2>Dungeon Leeching</h2>
+        <img src="{{ url_for('static', filename='images/402982.jpg') }}" alt="Dungeon Leeching">
+      </a>
+  
+      <a class="card" href="{{ url_for('views.search') }}">
+        <h2>Infinite Dreams</h2>
+        <img src="{{ url_for('static', filename='images/932681.jpg') }}" alt="Infinite Dreams">
+      </a>
+  
+      <a class="card" href="{{ url_for('views.search') }}">
+        <h2>Ocre Packages</h2>
+        <img src="{{ url_for('static', filename='images/419004.jpg') }}" alt="Ocre Packages">
+      </a>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

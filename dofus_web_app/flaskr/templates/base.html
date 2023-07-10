@@ -23,7 +23,7 @@
         </ul>
         <ul class="right">
           {% if g.user %}
-            <li><span>{{ g.user['username'] }}</span>
+            <li><a href="{{ url_for('profile.user_profile')}}">{{ g.user['username'] }}</a>
             <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
           {% else %}
             <li><a href="{{ url_for('auth.register') }}">Register</a>
