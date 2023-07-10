@@ -27,11 +27,49 @@ class DofusItemScrapping:
 
     def __init__(self):
         self.page = 1
-        self.continue_scrapping()
 
-    def continue_scrapping(self):
+    def get_data_for_JSON(self, url):
         """
         This is the first method of DofusItemScrapping.
+
+        Returns:
+            str: A string representing the result of the method.
+        """
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, "html.parser")
+            # Item id
+            item_id = int("".join(re.findall(r"\d", url)))
+            # Item name
+            item_name = (
+                soup.find(class_="ak-title-container ak-backlink")
+                .find("h1")
+                .text.replace("\n", "")
+            )
+            # Item image
+            item_image = soup.find(class_="ak-encyclo-detail-illu").find("img")["src"]
+            # Fetch the item image data
+            image_response = requests.get(item_image)
+            if image_response.status_code == 200:
+                # Encode the image data to Base64
+                item_image_data = base64.b64encode(image_response.content).decode('utf-8')
+            else:
+                print(f"Failed to retrieve item image. Status code: {image_response.status_code}")
+                item_image_data = None
+
+            item = {
+                "id": item_id,
+                "name": item_name,
+                "image": item_image_data,
+            }
+            return item
+        else:
+            print(f"Failed to retrieve data. Status code: {response.status_code}")
+            return None
+
+    def set_json_file(self):
+        """
+        This is the second method of DofusItemScrapping.
 
         Returns:
             str: A string representing the result of the method.
@@ -40,17 +78,80 @@ class DofusItemScrapping:
         if not os.path.isfile("items.json"):
             # Create an empty JSON file
             with open("items.json", "w", encoding='utf-8') as file:
-                json.dump({}, file)
+                json.dump([], file)
+        while self.page <= 102:
+            url = (
+                "https://www.dofus.com/fr/mmorpg/encyclopedie/equipements?page="
+                + str(self.page)
+            )
+            response = requests.get(url, timeout=5)
+            json_data = []
 
-        # Check if the JSON file is empty, if not get the last page scrapped
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.content, "html.parser")
+
+                # Find the table with the specified class name
+                table = soup.find("table", class_="ak-table ak-responsivetable")
+
+                # Find all the <tr> elements within the <tbody>
+                tr_elements = table.tbody.find_all("tr")
+
+                for tr in tr_elements:
+                    if tr:
+                        # Get the URL in the <a> tag
+                        span = tr.find("span", class_="ak-linker")
+                        if span:
+                            link = span.find("a")
+                            if link and "href" in link.attrs:
+                                url = "https://www.dofus.com" + link["href"]
+                                print(url)
+                                # Get data from the item
+                                item = self.get_data_for_JSON(url)
+                                if item is None:
+                                    print("Failed to retrieve data.)")
+                                    continue
+                                else:
+                                    print("Data retrieved successfully.")
+                                    # Append data to the JSON data list
+                                    json_data.append(item)
+                        else:
+                            print("Link not found")
+                    else:
+                        print("No item available")
+
+                # Save data to JSON file
+                self.data_to_json_file(json_data)
+
+                # Going to the next page
+                self.page += 1
+                # Timer to slow down and avoid getting banned by the website
+                time.sleep(30)
+            else:
+                print(f"Failed to retrieve data. Status code: {response.status_code}")
+
+    def data_to_json_file(self, items):
+        """
+        This is the second method of DofusItemScrapping.
+
+        Returns:
+            str: A string representing the result of the method.
+        """
+
+        # Open JSON file
         with open("items.json", "r", encoding='utf-8') as file:
             data = json.load(file)
-        if data:
-            self.page = int(len(data) + 1)
-            print(self.page)
-        self.scrapping_data()
 
-    def get_data_from_url(self, url):
+        # Add items to the JSON data list
+        data.extend(items)
+
+        # Save data to JSON file
+        with open("items.json", "w", encoding='utf-8') as file:
+            json.dump(data, file, indent=4)
+
+        # Print the number of items scrapped
+        print(f"Page {self.page} scrapped successfully.")
+
+    def get_item_from_url(self, url):
         """
         This is the first method of DofusItemScrapping.
 
@@ -80,12 +181,6 @@ class DofusItemScrapping:
             else:
                 print(f"Failed to retrieve item image. Status code: {image_response.status_code}")
                 item_image_data = None
-            # Item type
-            item_type = (
-                soup.find(class_="ak-encyclo-detail-type col-xs-6")
-                .find("span")
-                .text.replace("\n", "")
-            )
             # Item type
             item_type = (
                 soup.find(class_="ak-encyclo-detail-type col-xs-6")
@@ -148,7 +243,6 @@ class DofusItemScrapping:
                                 .strip()
                             )
                             # Recipe ingredient image
-                            # Recipe ingredient image
                             data["image"] = list_element.find(class_="ak-linker").find("img")["src"]
                             # Fetch the image data from the URL
                             response = requests.get(data["image"])
@@ -178,89 +272,8 @@ class DofusItemScrapping:
                 "stats": item_stats,
                 "recipe": item_recipe["recipe"],
             }
+            print(f"Item {item_id} scrapped successfully.")
             return item
         else:
             print(f"Failed to retrieve data. Status code: {response.status_code}")
             return None
-
-    def data_to_json_file(self, item, page_nb):
-        """
-        This is the second method of DofusItemScrapping.
-
-        Returns:
-            str: A string representing the result of the method.
-        """
-
-        # Open JSON file
-        with open("items.json", "r", encoding='utf-8') as file:
-            data = json.load(file)
-
-        # Add data to JSON file
-        if page_nb in data:
-            data[page_nb].extend(item)
-        else:
-            data[page_nb] = item
-
-        # Save data to JSON file
-        with open("items.json", "w", encoding='utf-8') as file:
-            json.dump(data, file, indent=4)
-
-        # Print the number of items scrapped
-        print(f"Page {page_nb} scrapped successfully.")
-
-    def scrapping_data(self):
-        """
-        This is the second method of DofusItemScrapping.
-
-        Returns:
-            str: A string representing the result of the method.
-        """
-
-        while self.page <= 102:
-            url = (
-                "https://www.dofus.com/fr/mmorpg/encyclopedie/equipements?page="
-                + str(self.page)
-            )
-            response = requests.get(url, timeout=5)
-            json_data = []
-
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, "html.parser")
-
-                # Find the table with the specified class name
-                table = soup.find("table", class_="ak-table ak-responsivetable")
-
-                # Find all the <tr> elements within the <tbody>
-                tr_elements = table.tbody.find_all("tr")
-
-                for tr in tr_elements:
-                    if tr:
-                        # Get the URL in the <a> tag
-                        span = tr.find("span", class_="ak-linker")
-                        if span:
-                            link = span.find("a")
-                            if link and "href" in link.attrs:
-                                url = "https://www.dofus.com" + link["href"]
-                                print(url)
-                                # Get data from the item
-                                item = self.get_data_from_url(url)
-                                if item is None:
-                                    print("Failed to retrieve data.)")
-                                    continue
-                                else:
-                                    print("Data retrieved successfully.")
-                                    # Append data in JSON file dictionnary
-                                    json_data.append(item)
-                        else:
-                            print("Link not found")
-                    else:
-                        print("No item available")
-                # Save data to JSON file
-                self.data_to_json_file(json_data, self.page)
-
-                # Going next page
-                self.page += 1
-                # Timer to slow down and not get banned by website
-                time.sleep(30)
-            else:
-                print(f"Failed to retrieve data. Status code: {response.status_code}")
