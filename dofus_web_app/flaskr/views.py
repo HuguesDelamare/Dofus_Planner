@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
-from dofus_web_app.flaskr.db import get_db, get_suggestions, perform_search, get_recipe_by_id
+from dofus_web_app.flaskr.db import perform_search, add_item, get_item_by_id
+from scrap_dofus_app.classes.dofus_to_json_class import DofusItemScrapping
 from .auth import login_required
+from .db import item_exists
 import os
 import json
 
@@ -32,49 +34,41 @@ def workbench():
 @bp.route('/suggest')
 def suggest():
     query = request.args.get('query', '').lower()
-    suggestions = get_suggestions(query)
+
+    # Load the JSON data
+    json_path = os.path.join('.', 'items.json')
+    with open(json_path, 'r') as json_file:
+        json_data = json.load(json_file)
+
+    # Filter and retrieve suggestions based on the query
+    suggestions = []
+    for item in json_data:
+        item_name = item.get('name', '').lower()
+        if query in item_name:
+            suggestions.append({'name': item_name, 'id': item.get('id', '')})
+
     return jsonify({'suggestions': suggestions})
 
 
 @bp.route('/search')
 def search():
-    query = request.args.get('name', '')
-    results = perform_search(query)
-    results[0]['item_recipe'] = get_recipe_by_id(results[0]['id'])
-    return jsonify(results)
+    item_id = request.args.get('id', '')
 
-
-@bp.route('/insert-data', methods=['POST'])
-def insert_data_from_json():
-    json_path = os.path.join('.', 'items.json')
-    # Reading the JSON file
-    with open(json_path, 'r') as json_file:
-        json_data = json.load(json_file)
-        for page in json_data:
-            for item in json_data[page]:
-                stats_str = ', '.join(item['stats'])
-
-                # Inserting the data into the 'items' table
-                db = get_db()
-                db.execute(
-                    'INSERT INTO items (item_id_dofus, item_name, item_image, item_type, item_level, item_description, item_stats) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    (item['id'], item['name'], item['image'], item['type'], item['level'], item['description'], stats_str)
-                )
-
-                # Commit the changes to retrieve the last inserted row ID
-                db.commit()
-                item_id = db.execute('SELECT last_insert_rowid()').fetchone()[0]
-
-                # Inserting the data into the 'item_ingredients' table
-                recipe = item.get('recipe')  # Get the 'recipe' attribute
-                if recipe and isinstance(recipe, list):
-                    for ingredient in recipe:
-                        db.execute(
-                            'INSERT INTO item_ingredients (item_id, ingredients_name, ingredients_quantity, ingredients_image) VALUES (?, ?, ?, ?)',
-                            (item_id, ingredient.get('name'), ingredient.get('quantity'), ingredient.get('image'))
-                        )
-                else:
-                    flash("Invalid recipe data for item: {}".format(item['id']), "error")
-            print("Page" + page + "inserted.")
-            db.commit()
-    return redirect(url_for('views.home'))
+    # Redirect to the URL with the item ID
+    if item_id:
+        if item_exists(item_id):
+            item = get_item_by_id(item_id)
+        else:
+            url = f'https://www.dofus.com/fr/mmorpg/encyclopedie/equipements/{item_id}'
+            scrapping = DofusItemScrapping()
+            item = scrapping.get_item_from_url(url)
+            if item:
+                add_item(item)
+            else:
+                flash("Item not found.", "error")
+                return redirect(url_for('views.craft'))
+    else:
+        # Handle the case when item ID is not found
+        flash("Item not found.", "error")
+        return redirect(url_for('views.craft'))
+    return item
