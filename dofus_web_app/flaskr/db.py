@@ -1,9 +1,15 @@
 import sqlite3
 from flask import current_app, g
+import os
 
 
 def init_app(app):
     app.teardown_appcontext(close_db)
+    # Check if the database is initialized
+    if not os.path.exists(current_app.config['DATABASE']):
+        with app.app_context():
+            init_db()
+            insert_servers()
 
 
 def init_db():
@@ -16,7 +22,7 @@ def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(
             current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
+            detect_types=sqlite3.PARSE_DECLTYPES        
         )
         g.db.row_factory = sqlite3.Row
     return g.db
@@ -26,6 +32,34 @@ def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+
+
+def get_all_servers():
+    db = get_db()
+    cursor = db.execute("SELECT * FROM servers")
+    results = [dict(row) for row in cursor.fetchall()]
+    return results
+
+
+def insert_servers():
+    db = get_db()
+    cursor = db.execute("SELECT COUNT(*) FROM servers")
+    count = cursor.fetchone()[0]
+    print(count)
+    if count == 0:
+        print("Inserting servers into the database")
+        db.executemany("""
+            INSERT INTO servers (server_name, server_community, server_type, server_access) VALUES (?, ?, ?, ?)
+        """, [
+            ('Imagiro', 'Global', 'Classic', 0),
+            ('Orukam', 'French', 'Classic', 0),
+            ('Hell Mina', 'French', 'Classic', 0),
+            ('Draconiros', 'French', 'Classic', 0),
+            ('Tal Kasha', 'International', 'Classic', 0),
+            ('Tylezia', 'French', 'Classic', 0),
+            ('Ombre', 'Global', 'Epic', 0)
+        ])
+        db.commit()
 
 
 def perform_search(query):
@@ -64,7 +98,6 @@ def get_item_by_id(item_id):
                 'quantity': row['ingredients_quantity'],
                 'image': row['ingredients_image']
             })
-
     return item
 
 
