@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Home{% endblock %}</h1>
-{% endblock %}
-
-{% block content %}
-
-<div class="container">
-  <div>
-    <h1>Home</h1>
+  <div id="presentation-container">
+    <h1>{% block title %}DofusPlanner{% endblock %}</h1>
     <p class="lead">Welcome to the Dofus Web App!</p>
     <p class="lead">This is a web app that allows you to find people to help you during your adventure !</p>
     <p class="lead">You can also use the crafting tool to help you with your crafts !</p>
     <p class="lead"></p>
   </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
   <div class="homepage-container">
     <div class="row">
       <a class="card" href="{{ url_for('views.search') }}">
@@ -21,7 +21,7 @@
         <img src="{{ url_for('static', filename='images/420188.jpg') }}" alt="Job Packages">
       </a>
   
-      <a class="card" href="{{ url_for('views.search') }}">
+      <a class="card" href="{{ url_for('views.breeding_packages') }}">
         <h2>Breeding Packages</h2>
         <img src="{{ url_for('static', filename='images/418991.jpg') }}" alt="Breeding Packages">
       </a>
@@ -48,6 +48,18 @@
         <img src="{{ url_for('static', filename='images/419004.jpg') }}" alt="Ocre Packages">
       </a>
     </div>
+  </div>
+  <div class="almanax-container">
+    <!-- Render the cached data on the page -->
+    {% if almanax_data %}
+        <ul>
+            {% for data in almanax_data %}
+                <li>{{ data.date }} - {{ data.bonus }} - {{ data.image }} - {{ data.description }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No data available.</p>
+    {% endif %}
   </div>
 </div>
 

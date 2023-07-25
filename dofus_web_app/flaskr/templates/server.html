@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Choose Your Server:</h2>
+  <div class="server-container">
+    <div class="row">
+      {% for server in servers %}
+        <a class="card" href="{{ url_for('views.breeding', server=server.server_name) }}">
+          <h2>{{ server.server_name }}</h2>
+          <img src="{{ url_for('static', filename='images/4758963.jpg') }}" alt="Server image">
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
