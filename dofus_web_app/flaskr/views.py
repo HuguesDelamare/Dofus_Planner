@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from dofus_web_app.flaskr.db import perform_search, add_item, get_item_by_id
 from scrap_dofus_app.classes.dofus_to_json_class import DofusItemScrapping
+from .db import get_all_servers
 from .auth import login_required
 from .db import item_exists
 import os
@@ -13,6 +14,26 @@ bp = Blueprint('views', __name__)
 @bp.route('/')
 def home():
     return render_template('home.html')
+
+
+@bp.route('/breeding/packages')
+def breeding_packages():
+    # Get all server data from the database
+    servers = get_all_servers()
+    return render_template('server.html', servers=servers)
+
+
+@bp.route('/breeding/<server>')
+def breeding(server):
+    # Handle the selected server and any additional logic, if needed
+    # Then, redirect to the "Breeding.html" page
+    return redirect(url_for('views.breeding_html', server=server))
+
+
+@bp.route('/offers/breeding_packages.html')
+def breeding_html():
+    # Render the "Breeding.html" page
+    return render_template('offers/breeding_packages.html')
 
 
 @bp.route('/craft', methods=['GET', 'POST'])

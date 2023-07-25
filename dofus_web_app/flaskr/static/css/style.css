@@ -71,16 +71,6 @@ header .action {
   display: flex;
   flex-direction: column;
 }
-.content > header {
-  border-bottom: 1px solid lightgray;
-  display: flex;
-  align-items: flex-end;
-}
-.content > header h1 {
-  flex: auto;
-  margin: 1rem 0 0.25rem 0;
-  color: #333333;
-}
 .content:last-child {
   margin-bottom: 0;
 }
@@ -269,18 +259,18 @@ footer {
   display: flex;
   flex-direction: column;
 }
-/* Home Page Container */
-.homepage-container {
+/* HOME PAGE*/
+.homepage-container, .server-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
 }
-.row {
+.homepage-container .row, .server-container .row {
   display: flex;
   justify-content: center;
   flex: 1;
 }
-.card {
+.homepage-container .card, .server-container .card {
   min-width: 350px;
   min-height: 170px;
   padding: 20px;
@@ -291,10 +281,10 @@ footer {
   position: relative;
   overflow: hidden;
 }
-.card:hover {
+.homepage-container .card:hover, .server-container .card:hover {
   background-color: #f5f5f5;
 }
-.card img {
+.homepage-container .card img, .server-container .card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -302,16 +292,49 @@ footer {
   top: 0;
   left: 0;
 }
-.card h2 {
+.homepage-container .card h2, .server-container .card h2 {
   font-size: 1.2em;
   margin: 0;
   margin-top: 10px;
+  padding: 8px 12px; /* Add padding for better readability */
   position: absolute;
   bottom: 10px;
   left: 10px;
   color: white;
   z-index: 1;
-  text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
+  /* Add background color and text shadow for better contrast */
+  background-color: rgba(0, 0, 0, 0.6);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+.server-container {
+  display: flex;
+  justify-content: center;
+}
 
+.server-container .row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#presentation-container {
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; 
+}
+#presentation-container h1 {
+  font-size: 2.5em;
+  margin: 0;
+  margin-bottom: 10px;
+}
+main {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

@@ -25,3 +25,11 @@ CREATE TABLE IF NOT EXISTS item_ingredients (
     ingredients_image TEXT,
     FOREIGN KEY (item_id) REFERENCES items (id)
 );
+
+CREATE TABLE IF NOT EXISTS servers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_name TEXT,   
+    server_community TEXT,
+    server_type TEXT,
+    server_access BOOLEAN
+);
